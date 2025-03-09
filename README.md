@@ -1,2 +1,2 @@
 # Study materials and source code for **Droidcon Academy** course 
-> # Add Course Name 
+> # Get_It for Flutter: A Lightweight Approach to Dependency Management
