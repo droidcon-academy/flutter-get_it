@@ -41,6 +41,7 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
     _passwordViewModel = getIt<PasswordDetailViewModel>(
       param1: widget.editPasswordId,
     );
+    print('passwordViewModel: ${_passwordViewModel.hashCode}');
     _categoryViewModel = getIt<CategoryViewModel>();
 
     _isEditing = widget.editPasswordId != null;
@@ -237,7 +238,6 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       final password = _buildPasswordModel();
       final result = await _passwordViewModel.savePassword(password);
-      print('result: $mounted');
       if (result && mounted) {
         showSnackbarMsg(
           context,

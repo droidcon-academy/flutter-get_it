@@ -57,6 +57,7 @@ void main() {
     ];
 
     final mockPasswordRepository = getIt<PasswordRepository>();
+    // Mock the repository to return our test passwords
     when(() => mockPasswordRepository.getAllPasswords())
         .thenAnswer((_) async => mockPasswords);
 
