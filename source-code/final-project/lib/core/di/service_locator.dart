@@ -67,11 +67,11 @@ Future<void> setupServiceLocator() async {
     ),
   );
 
-  getIt.registerCachedFactory<PasswordListViewModel>(
+  getIt.registerLazySingleton<PasswordListViewModel>(
     () => PasswordListViewModel(getIt<PasswordRepository>()),
   );
 
-  getIt.registerCachedFactory<CategoryViewModel>(
+  getIt.registerLazySingleton<CategoryViewModel>(
     () => CategoryViewModel(getIt<CategoryRepository>()),
   );
 
