@@ -5,7 +5,7 @@ class SettingsService {
   static const String _biometricAuthKey = 'biometric_auth';
   static const String _autoLockKey = 'auto_lock';
   static const String _lockTimeoutKey = 'lock_timeout';
-
+  static const String _encryptionMethodKey = 'encryption_method';
   final SharedPreferences _prefs;
 
   SettingsService(this._prefs);
@@ -36,5 +36,12 @@ class SettingsService {
 
   Future<void> setLockTimeout(int minutes) async {
     await _prefs.setInt(_lockTimeoutKey, minutes);
+  }
+
+  String get encryptionMethod =>
+      _prefs.getString(_encryptionMethodKey) ?? 'AES';
+
+  Future<void> setEncryptionMethod(String method) async {
+    await _prefs.setString(_encryptionMethodKey, method);
   }
 }

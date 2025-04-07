@@ -36,6 +36,44 @@ class SettingsScreen extends WatchingWidget {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
             child: Text(
+              'Security',
+              style: titleStyle,
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: RadioListTile<String>(
+                  title: const Text('AES'),
+                  value: 'AES',
+                  groupValue: viewModel.encryptionMethod,
+                  onChanged: (value) {
+                    if (value != null) {
+                      viewModel.setEncryptionMethod(value);
+                      restartApp(context);
+                    }
+                  },
+                ),
+              ),
+              Expanded(
+                child: RadioListTile<String>(
+                  title: const Text('RSA'),
+                  value: 'RSA',
+                  groupValue: viewModel.encryptionMethod,
+                  onChanged: (value) {
+                    if (value != null) {
+                      viewModel.setEncryptionMethod(value);
+                      restartApp(context);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+            child: Text(
               'About',
               style: titleStyle,
             ),
@@ -50,6 +88,14 @@ class SettingsScreen extends WatchingWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void restartApp(BuildContext context) {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/',
+      (_) => false,
     );
   }
 }

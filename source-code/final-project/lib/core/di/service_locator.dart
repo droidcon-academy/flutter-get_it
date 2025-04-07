@@ -7,6 +7,7 @@ import 'package:da_get_it/viewmodels/category_viewmodel.dart';
 import 'package:da_get_it/viewmodels/password_detail_viewmodel.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/viewmodels/settings_viewmodel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +21,15 @@ Future<void> setupServiceLocator() async {
     return IsarDatabase(isar);
   });
 
-  getIt.registerSingleton<EncryptionService>(EncryptionService());
+  getIt.registerSingleton<EncryptionService>(
+    EncryptionService.createAES(),
+    instanceName: EncryptionType.AES.name,
+  );
+
+  getIt.registerSingleton<EncryptionService>(
+    EncryptionService.createRSA(),
+    instanceName: EncryptionType.RSA.name,
+  );
 
   // Initialize SharedPreferences
   getIt.registerSingletonAsync<SharedPreferences>(() {
@@ -39,7 +48,15 @@ Future<void> setupServiceLocator() async {
   );
 
   getIt.registerLazySingleton<PasswordRepository>(
-    () => PasswordRepository(getIt<IsarDatabase>(), getIt<EncryptionService>()),
+    () {
+      final prefs = getIt<SettingsService>();
+      final method = prefs.encryptionMethod;
+      debugPrint('method: $method');
+      return PasswordRepository(
+        getIt<IsarDatabase>(),
+        getIt<EncryptionService>(instanceName: method),
+      );
+    },
   );
 
   // ViewModels (Factory - created new each time)
