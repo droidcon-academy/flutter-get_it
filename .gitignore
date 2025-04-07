@@ -271,3 +271,7 @@ tags
 
 ## Gcc Patch
 /*.gcno
+*.dart_tool
+*.flutter-plugins
+*.flutter-plugins-dependencies
+
