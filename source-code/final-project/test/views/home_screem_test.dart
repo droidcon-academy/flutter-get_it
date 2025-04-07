@@ -8,7 +8,6 @@
 import 'package:da_get_it/views/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:da_get_it/main.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/repositories/password_repository.dart';

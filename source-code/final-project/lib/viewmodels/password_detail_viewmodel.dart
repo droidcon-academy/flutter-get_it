@@ -1,4 +1,3 @@
-import 'package:da_get_it/core/di/service_locator.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/repositories/password_repository.dart';
 import 'package:flutter/foundation.dart';
