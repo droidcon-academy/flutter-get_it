@@ -51,7 +51,6 @@ Future<void> setupServiceLocator() async {
     () {
       final prefs = getIt<SettingsService>();
       final method = prefs.encryptionMethod;
-      debugPrint('method: $method');
       return PasswordRepository(
         getIt<IsarDatabase>(),
         getIt<EncryptionService>(instanceName: method),

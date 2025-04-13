@@ -41,7 +41,6 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
     _passwordViewModel = getIt<PasswordDetailViewModel>(
       param1: widget.editPasswordId,
     );
-    print('passwordViewModel: ${_passwordViewModel.hashCode}');
     _categoryViewModel = getIt<CategoryViewModel>();
 
     _isEditing = widget.editPasswordId != null;
