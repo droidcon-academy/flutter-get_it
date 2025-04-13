@@ -13,13 +13,12 @@ abstract class EncryptionService {
     return RSAEncryptionService();
   }
 
-  /// Encrypt a password with a simple XOR cipher
-  /// Note: This is a simplified encryption for demonstration purposes
-  /// In a real app, use a stronger encryption method
-  String encryptPassword(String password, String salt);
+  /// Encrypt a password and return the encrypted password with salt
+  /// Returns a string in the format "encryptedPassword:salt"
+  String encryptPassword(String password);
 
   /// Decrypt a password using the same XOR cipher
-  String decryptPassword(String encryptedPassword, String salt);
+  String decryptPassword(String encryptedPassword);
 
   /// Generate a random salt for encryption
   String generateSalt();
