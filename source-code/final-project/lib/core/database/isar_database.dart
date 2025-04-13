@@ -15,7 +15,7 @@ class IsarDatabase {
       [PasswordModelSchema, CategoryModelSchema],
       directory: dir.path,
     );
-    await initializeData(db);
+    await initCategories(db);
     return db;
   }
 
