@@ -32,7 +32,6 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
   final _notesController = TextEditingController();
 
   String _selectedCategory = '';
-  bool _obscurePassword = true;
   bool _isEditing = false;
 
   @override
