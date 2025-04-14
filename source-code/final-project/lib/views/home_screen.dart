@@ -16,6 +16,12 @@ class HomeScreen extends WatchingStatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
+  void switchToFirstTab() {
+    setState(() {
+      _selectedIndex = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final passwordViewModel = watchIt<PasswordListViewModel>();
@@ -86,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return const PasswordList();
       case 1:
-        return const CategoriesList();
+        return CategoriesList(onSelected: switchToFirstTab);
       case 2:
         return const SettingsList();
       default:
