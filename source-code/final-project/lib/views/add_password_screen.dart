@@ -3,6 +3,7 @@ import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/category_viewmodel.dart';
 import 'package:da_get_it/viewmodels/password_detail_viewmodel.dart';
 import 'package:da_get_it/widgets/messages.dart';
+import 'package:da_get_it/widgets/password_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:watch_it/watch_it.dart';
@@ -83,19 +84,6 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
     super.dispose();
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 24, 0, 16),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final passwordViewModel = watchIt<PasswordDetailViewModel>();
@@ -121,8 +109,8 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionHeader('ITEM DETAILS'),
-                      _buildTextField(
+                      SectionHeader(title: 'ITEM DETAILS'),
+                      AppTextField(
                         controller: _titleController,
                         label: 'Item name (required)',
                         validator: (value) {
@@ -161,8 +149,8 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                           }
                         },
                       ),
-                      _buildSectionHeader('LOGIN CREDENTIALS'),
-                      _buildTextField(
+                      SectionHeader(title: 'LOGIN CREDENTIALS'),
+                      AppTextField(
                         controller: _usernameController,
                         label: 'Username',
                         validator: (value) {
@@ -172,7 +160,7 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                           return null;
                         },
                       ),
-                      _buildTextField(
+                      AppTextField(
                         controller: _passwordController,
                         label: 'Password',
                         isPassword: true,
@@ -183,8 +171,8 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                           return null;
                         },
                       ),
-                      _buildSectionHeader('AUTOFILL OPTIONS'),
-                      _buildTextField(
+                      SectionHeader(title: 'AUTOFILL OPTIONS'),
+                      AppTextField(
                         controller: _urlController,
                         label: 'Website (URI)',
                         validator: (value) {
@@ -194,8 +182,8 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                           return null;
                         },
                       ),
-                      _buildSectionHeader('NOTES'),
-                      _buildTextField(
+                      SectionHeader(title: 'NOTES'),
+                      AppTextField(
                         controller: _notesController,
                         label: 'Your additional notes (optional)',
                         maxLines: 3,
@@ -239,50 +227,5 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
       updatedAt: DateTime.now(),
     );
     return password;
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    bool isPassword = false,
-    int? maxLines,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: isPassword && _obscurePassword,
-      maxLines: maxLines ?? 1,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(
-          color: Colors.grey[600],
-          fontSize: 16,
-        ),
-        suffixIcon: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isPassword)
-              IconButton(
-                icon: Icon(
-                  _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                  color: Colors.grey[600],
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscurePassword = !_obscurePassword;
-                  });
-                },
-              ),
-          ],
-        ),
-        border: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-      ),
-      validator: validator,
-    );
   }
 }

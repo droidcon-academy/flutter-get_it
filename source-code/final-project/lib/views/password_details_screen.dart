@@ -1,8 +1,8 @@
 import 'package:da_get_it/viewmodels/password_detail_viewmodel.dart';
 import 'package:da_get_it/views/add_password_screen.dart';
 import 'package:da_get_it/widgets/messages.dart';
+import 'package:da_get_it/widgets/password_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:da_get_it/core/di/service_locator.dart';
 import 'package:watch_it/watch_it.dart';
 
@@ -20,6 +20,7 @@ class PasswordDetailsScreen extends WatchingWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Password Details'),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -76,45 +77,6 @@ class PasswordDetailsScreen extends WatchingWidget {
   }
 }
 
-class _FieldCard extends StatelessWidget {
-  final String title;
-  final String content;
-  final IconData icon;
-  final bool canCopy;
-  final bool isMultiline;
-
-  const _FieldCard({
-    required this.title,
-    required this.content,
-    required this.icon,
-    this.canCopy = false,
-    this.isMultiline = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(title),
-        subtitle: Text(
-          content,
-          style: const TextStyle(fontSize: 16),
-          maxLines: isMultiline ? null : 1,
-        ),
-        trailing: canCopy
-            ? IconButton(
-                icon: const Icon(Icons.copy),
-                onPressed: () => _copyToClipboard(context, content),
-              )
-            : null,
-        isThreeLine: isMultiline,
-      ),
-    );
-  }
-}
-
 class _PasswordForm extends StatelessWidget {
   const _PasswordForm({required this.viewModel});
   final PasswordDetailViewModel viewModel;
@@ -135,37 +97,49 @@ class _PasswordForm extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _FieldCard(
-            title: 'Title',
-            content: password.title,
-            icon: Icons.title,
-          ),
-          _FieldCard(
-            title: 'Username / Email',
-            content: password.username,
-            icon: Icons.person,
+          SectionHeader(title: 'ITEM DETAILS'),
+          AppTextField(
+            controller: TextEditingController(text: password.title),
+            label: 'Item name',
             canCopy: true,
+            isReadOnly: true,
           ),
-          _buildPasswordCard(context),
-          _FieldCard(
-            title: 'Website URL',
-            content: password.url,
-            icon: Icons.link,
+          AppTextField(
+            controller: TextEditingController(text: password.category),
+            label: 'Category',
+            isReadOnly: true,
+          ),
+          SectionHeader(title: 'LOGIN CREDENTIALS'),
+          AppTextField(
+            controller: TextEditingController(text: password.username),
+            label: 'Username',
             canCopy: true,
+            isReadOnly: true,
           ),
-          _FieldCard(
-            title: 'Category',
-            content: password.category,
-            icon: Icons.category,
+          AppTextField(
+            controller:
+                TextEditingController(text: viewModel.decryptedPassword),
+            label: 'Password',
+            canCopy: true,
+            isPassword: true,
           ),
-          if (password.notes != null && password.notes!.isNotEmpty)
-            _FieldCard(
-              title: 'Notes',
-              content: password.notes!,
-              icon: Icons.note,
-              isMultiline: true,
+          SectionHeader(title: 'AUTOFILL OPTIONS'),
+          AppTextField(
+            controller: TextEditingController(text: password.url),
+            label: 'Website (URI)',
+            canCopy: true,
+            isReadOnly: true,
+          ),
+          if (password.notes != null && password.notes!.isNotEmpty) ...[
+            SectionHeader(title: 'NOTES'),
+            AppTextField(
+              controller: TextEditingController(text: password.notes!),
+              label: 'Your additional notes (optional)',
+              canCopy: true,
+              isReadOnly: true,
             ),
-          const SizedBox(height: 8),
+          ],
+          const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
@@ -186,46 +160,11 @@ class _PasswordForm extends StatelessWidget {
     );
   }
 
-  Widget _buildPasswordCard(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      child: ListTile(
-        leading: const Icon(Icons.lock),
-        title: const Text('Password'),
-        subtitle: Text(
-          viewModel.passwordVisible
-              ? viewModel.decryptedPassword
-              : viewModel.getMaskedPassword(),
-          style: const TextStyle(fontSize: 16),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(
-                viewModel.passwordVisible
-                    ? Icons.visibility_off
-                    : Icons.visibility,
-              ),
-              onPressed: () => viewModel.togglePasswordVisibility(),
-            ),
-            IconButton(
-              icon: const Icon(Icons.copy),
-              onPressed: () =>
-                  _copyToClipboard(context, viewModel.decryptedPassword),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-  }
-}
+    final formatted = '${date.day}/${date.month}/${date.year}';
+    final hour = date.hour;
+    final minute = date.minute.toString().padLeft(2, '0');
 
-void _copyToClipboard(BuildContext context, String text) {
-  Clipboard.setData(ClipboardData(text: text));
-  showSnackbarMsg(context, 'Copied to clipboard');
+    return '$formatted $hour:$minute';
+  }
 }
