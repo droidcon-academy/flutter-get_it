@@ -35,7 +35,8 @@ class PasswordItem extends StatelessWidget {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Delete Password'),
-            content: Text('Are you sure you want to delete "${password.title}"?'),
+            content:
+                Text('Are you sure you want to delete "${password.title}"?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
@@ -69,4 +70,38 @@ class PasswordItem extends StatelessWidget {
       ),
     );
   }
-} 
+}
+
+class NoPasswordFound extends StatelessWidget {
+  const NoPasswordFound({super.key, this.onClearTap});
+
+  final VoidCallback? onClearTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.lock, size: 72, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text(
+            'No passwords yet',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tap the + button to add your first password',
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 24),
+          if (onClearTap != null)
+            ElevatedButton(
+              onPressed: onClearTap,
+              child: const Text('Clear filter'),
+            ),
+        ],
+      ),
+    );
+  }
+}
