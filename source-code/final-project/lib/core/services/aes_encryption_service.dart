@@ -7,7 +7,7 @@ class AESEncryptionService implements EncryptionService {
   /// Encrypt a password using AES encryption
   @override
   String encryptPassword(String password) {
-    final salt = generateSalt();
+    final salt = _generateSalt();
     final key = Key.fromUtf8(salt);
     final encrypter = Encrypter(AES(key));
 
@@ -36,9 +36,7 @@ class AESEncryptionService implements EncryptionService {
     return encrypter.decrypt(encryptedData, iv: iv);
   }
 
-  /// Generate a random salt for encryption
-  @override
-  String generateSalt() {
+  String _generateSalt() {
     final random = Random.secure();
     final saltBytes = List<int>.generate(16, (_) => random.nextInt(256));
     return base64Encode(saltBytes);
