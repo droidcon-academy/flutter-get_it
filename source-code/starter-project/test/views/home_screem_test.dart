@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/repositories/password_repository.dart';
-import 'package:da_get_it/core/di/app_dependencies.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockPasswordRepository extends Mock implements PasswordRepository {}

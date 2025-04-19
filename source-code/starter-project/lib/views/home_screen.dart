@@ -1,4 +1,4 @@
-import 'package:da_get_it/core/di/app_dependencies.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/views/add_password_screen.dart';
 import 'package:da_get_it/views/categories_list.dart';
@@ -56,8 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             destinations: const [
               NavigationDestination(
-                icon: Icon(Icons.password),
-                label: 'Passwords',
+                icon: Icon(Icons.lock),
+                label: 'My Vault',
               ),
               NavigationDestination(
                 icon: Icon(Icons.folder),

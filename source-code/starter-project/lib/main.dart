@@ -1,4 +1,4 @@
-import 'package:da_get_it/core/di/app_dependencies.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:da_get_it/views/home_screen.dart';
 import 'package:flutter/material.dart';
 

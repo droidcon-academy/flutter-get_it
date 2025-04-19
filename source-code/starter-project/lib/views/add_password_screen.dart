@@ -1,4 +1,4 @@
-import 'package:da_get_it/core/di/app_dependencies.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/category_viewmodel.dart';
 import 'package:da_get_it/viewmodels/password_detail_viewmodel.dart';
@@ -185,31 +185,34 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
 
   Future<void> _savePassword() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final password = PasswordModel(
-        id: _isEditing
-            ? (_passwordViewModel.password?.id ?? Isar.autoIncrement)
-            : Isar.autoIncrement,
-        title: _titleController.text,
-        username: _usernameController.text,
-        password: _passwordController.text,
-        url: _urlController.text,
-        notes: _notesController.text.isEmpty ? null : _notesController.text,
-        category: _selectedCategory,
-        createdAt: _isEditing
-            ? _passwordViewModel.password?.createdAt ?? DateTime.now()
-            : DateTime.now(),
-      );
-
+      final password = _buildPasswordModel();
       final result = await _passwordViewModel.savePassword(password);
-      if (result) {
+      if (result && mounted) {
         showSnackbarMsg(
           context,
           _isEditing ? 'Password updated' : 'Password saved',
         );
         Navigator.pop(context);
-      } else {
-        showSnackbarMsg(context, 'Failed to save password');
       }
     }
+  }
+
+  PasswordModel _buildPasswordModel() {
+    final password = PasswordModel(
+      id: _isEditing && _passwordViewModel.password != null
+          ? _passwordViewModel.password!.id
+          : Isar.autoIncrement,
+      title: _titleController.text,
+      username: _usernameController.text,
+      password: _passwordController.text,
+      url: _urlController.text,
+      category: _selectedCategory,
+      notes: _notesController.text.isEmpty ? null : _notesController.text,
+      createdAt: _isEditing && _passwordViewModel.password != null
+          ? _passwordViewModel.password!.createdAt
+          : DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    return password;
   }
 }

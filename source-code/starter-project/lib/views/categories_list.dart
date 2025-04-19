@@ -1,4 +1,4 @@
-import 'package:da_get_it/core/di/app_dependencies.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:da_get_it/viewmodels/category_viewmodel.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/widgets/messages.dart';

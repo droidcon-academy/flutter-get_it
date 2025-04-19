@@ -1,6 +1,7 @@
-import 'package:da_get_it/core/di/app_dependencies.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:da_get_it/viewmodels/password_detail_viewmodel.dart';
 import 'package:da_get_it/views/add_password_screen.dart';
+import 'package:da_get_it/widgets/messages.dart';
 import 'package:da_get_it/widgets/password_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -72,8 +73,11 @@ class PasswordDetailsScreen extends StatelessWidget {
     );
 
     if (confirmed == true) {
-      await viewModel.deletePassword();
-      Navigator.pop(context);
+      final result = await viewModel.deletePassword();
+      if (result) {
+        showSnackbarMsg(context, 'Password deleted');
+        Navigator.pop(context);
+      }
     }
   }
 }
