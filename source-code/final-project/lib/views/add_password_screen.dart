@@ -1,4 +1,4 @@
-import 'package:da_get_it/core/di/service_locator.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/category_viewmodel.dart';
 import 'package:da_get_it/viewmodels/password_detail_viewmodel.dart';

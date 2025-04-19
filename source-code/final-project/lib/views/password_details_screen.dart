@@ -3,7 +3,7 @@ import 'package:da_get_it/views/add_password_screen.dart';
 import 'package:da_get_it/widgets/messages.dart';
 import 'package:da_get_it/widgets/password_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:da_get_it/core/di/service_locator.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:watch_it/watch_it.dart';
 
 class PasswordDetailsScreen extends WatchingWidget {

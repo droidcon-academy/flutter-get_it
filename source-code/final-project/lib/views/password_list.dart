@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:da_get_it/core/di/service_locator.dart';
+import 'package:da_get_it/core/di/dependencies.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/views/password_details_screen.dart';
