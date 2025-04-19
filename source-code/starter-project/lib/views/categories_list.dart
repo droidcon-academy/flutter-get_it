@@ -1,10 +1,10 @@
+import 'package:da_get_it/core/di/app_dependencies.dart';
 import 'package:da_get_it/viewmodels/category_viewmodel.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/widgets/messages.dart';
 import 'package:flutter/material.dart';
-import 'package:watch_it/watch_it.dart';
 
-class CategoriesList extends WatchingWidget {
+class CategoriesList extends StatelessWidget {
   final VoidCallback onSelected;
 
   const CategoriesList({
@@ -14,41 +14,46 @@ class CategoriesList extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final passwordViewModel = watchIt<PasswordListViewModel>();
-    final categoryViewModel = watchIt<CategoryViewModel>();
+    final passwordViewModel = AppDependencies.instance.passwordListViewModel;
+    final categoryViewModel = AppDependencies.instance.categoryViewModel;
 
-    return ListView(
-      children: [
-        ListTile(
-          title: const Text('All Passwords'),
-          selected: passwordViewModel.selectedCategory.isEmpty,
-          leading: const Icon(Icons.password),
-          onTap: () {
-            passwordViewModel.clearFilters();
-            showSnackbarMsg(context, 'Showing all passwords');
-            onSelected();
-          },
-        ),
-        const Divider(),
-        if (categoryViewModel.isLoading)
-          const Center(child: CircularProgressIndicator())
-        else
-          ...categoryViewModel.categories.map((category) {
-            return ListTile(
-              title: Text(category.name),
-              selected: passwordViewModel.selectedCategory == category.name,
-              leading: const Icon(Icons.folder),
+    return ListenableBuilder(
+      listenable: Listenable.merge([passwordViewModel, categoryViewModel]),
+      builder: (context, _) {
+        return ListView(
+          children: [
+            ListTile(
+              title: const Text('All Passwords'),
+              selected: passwordViewModel.selectedCategory.isEmpty,
+              leading: const Icon(Icons.password),
               onTap: () {
-                passwordViewModel.filterByCategory(category.name);
-                showSnackbarMsg(
-                  context,
-                  'Showing passwords in ${category.name}',
-                );
+                passwordViewModel.clearFilters();
+                showSnackbarMsg(context, 'Showing all passwords');
                 onSelected();
               },
-            );
-          }),
-      ],
+            ),
+            const Divider(),
+            if (categoryViewModel.isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              ...categoryViewModel.categories.map((category) {
+                return ListTile(
+                  title: Text(category.name),
+                  selected: passwordViewModel.selectedCategory == category.name,
+                  leading: const Icon(Icons.folder),
+                  onTap: () {
+                    passwordViewModel.filterByCategory(category.name);
+                    showSnackbarMsg(
+                      context,
+                      'Showing passwords in ${category.name}',
+                    );
+                    onSelected();
+                  },
+                );
+              }),
+          ],
+        );
+      },
     );
   }
 }

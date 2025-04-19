@@ -11,27 +11,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/repositories/password_repository.dart';
-import 'package:da_get_it/core/di/service_locator.dart';
+import 'package:da_get_it/core/di/app_dependencies.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockPasswordRepository extends Mock implements PasswordRepository {}
 
 void main() {
+  late MockPasswordRepository mockPasswordRepository;
+  late PasswordListViewModel passwordListViewModel;
+
   setUp(() {
-    // Register mock repository with get_it
-    getIt.registerSingleton<PasswordRepository>(
-      MockPasswordRepository(),
-    );
-
-    getIt.registerLazySingleton<PasswordListViewModel>(
-      () => PasswordListViewModel(
-        getIt<PasswordRepository>(),
-      ),
-    );
-  });
-
-  tearDown(() {
-    getIt.reset();
+    mockPasswordRepository = MockPasswordRepository();
+    passwordListViewModel = PasswordListViewModel(mockPasswordRepository);
   });
 
   testWidgets('should display 2 password items', (WidgetTester tester) async {
@@ -55,14 +46,13 @@ void main() {
       ),
     ];
 
-    final mockPasswordRepository = getIt<PasswordRepository>();
     // Mock the repository to return our test passwords
     when(() => mockPasswordRepository.getAllPasswords())
         .thenAnswer((_) async => mockPasswords);
 
     // Build our app and trigger a frame
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
         home: HomeScreen(),
       ),
     );

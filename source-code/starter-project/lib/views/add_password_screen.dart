@@ -1,4 +1,4 @@
-import 'package:da_get_it/core/di/service_locator.dart';
+import 'package:da_get_it/core/di/app_dependencies.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/category_viewmodel.dart';
 import 'package:da_get_it/viewmodels/password_detail_viewmodel.dart';
@@ -6,9 +6,8 @@ import 'package:da_get_it/widgets/messages.dart';
 import 'package:da_get_it/widgets/password_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
-import 'package:watch_it/watch_it.dart';
 
-class AddPasswordScreen extends WatchingStatefulWidget {
+class AddPasswordScreen extends StatefulWidget {
   final int? editPasswordId;
 
   const AddPasswordScreen({
@@ -21,8 +20,8 @@ class AddPasswordScreen extends WatchingStatefulWidget {
 }
 
 class _AddPasswordScreenState extends State<AddPasswordScreen> {
-  late PasswordDetailViewModel _passwordViewModel;
-  late CategoryViewModel _categoryViewModel;
+  late final PasswordDetailViewModel _passwordViewModel;
+  late final CategoryViewModel _categoryViewModel;
 
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
@@ -38,14 +37,22 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
   void initState() {
     super.initState();
 
-    _passwordViewModel = getIt<PasswordDetailViewModel>(
-      param1: widget.editPasswordId,
-    );
-    _categoryViewModel = getIt<CategoryViewModel>();
-
+    _passwordViewModel = AppDependencies.instance
+        .createPasswordDetailViewModel(widget.editPasswordId);
+    _categoryViewModel = AppDependencies.instance.categoryViewModel;
     _isEditing = widget.editPasswordId != null;
 
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _urlController.dispose();
+    _notesController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -74,157 +81,135 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
   }
 
   @override
-  void dispose() {
-    _titleController.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
-    _urlController.dispose();
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final passwordViewModel = watchIt<PasswordDetailViewModel>();
-    final categoryViewModel = watchIt<CategoryViewModel>();
-    final isLoading =
-        passwordViewModel.isLoading || categoryViewModel.isLoading;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Password' : 'New Password'),
-        centerTitle: true,
+    return ListenableBuilder(
+      listenable: Listenable.merge(
+        [_passwordViewModel, _categoryViewModel],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _savePassword,
-        child: const Icon(Icons.save),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: Padding(
+      builder: (context, _) {
+        final isLoading =
+            _passwordViewModel.isLoading || _categoryViewModel.isLoading;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(_isEditing ? 'Edit Password' : 'Add Password'),
+            centerTitle: true,
+          ),
+          body: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SectionHeader(title: 'ITEM DETAILS'),
-                      AppTextField(
-                        controller: _titleController,
-                        label: 'Item name (required)',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a title';
-                          }
-                          return null;
-                        },
-                      ),
-                      DropdownButtonFormField<String>(
-                        value: _selectedCategory,
-                        decoration: InputDecoration(
-                          labelText: 'Category',
-                          labelStyle: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 16,
-                          ),
-                          border: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SectionHeader(title: 'ITEM DETAILS'),
+                        AppTextField(
+                          controller: _titleController,
+                          label: 'Item name',
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a title';
+                            }
+                            return null;
+                          },
                         ),
-                        items: _categoryViewModel.categories.map((category) {
-                          return DropdownMenuItem(
-                            value: category.name,
-                            child: Text(category.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _selectedCategory = value;
-                            });
-                          }
-                        },
-                      ),
-                      SectionHeader(title: 'LOGIN CREDENTIALS'),
-                      AppTextField(
-                        controller: _usernameController,
-                        label: 'Username',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a username';
-                          }
-                          return null;
-                        },
-                      ),
-                      AppTextField(
-                        controller: _passwordController,
-                        label: 'Password',
-                        isPassword: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a password';
-                          }
-                          return null;
-                        },
-                      ),
-                      SectionHeader(title: 'AUTOFILL OPTIONS'),
-                      AppTextField(
-                        controller: _urlController,
-                        label: 'Website (URI)',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a URL';
-                          }
-                          return null;
-                        },
-                      ),
-                      SectionHeader(title: 'NOTES'),
-                      AppTextField(
-                        controller: _notesController,
-                        label: 'Your additional notes (optional)',
-                        maxLines: 3,
-                      ),
-                    ],
+                        const SizedBox(height: 16.0),
+                        DropdownButtonFormField<String>(
+                          value: _selectedCategory,
+                          decoration: const InputDecoration(
+                            labelText: 'Category',
+                          ),
+                          items: _categoryViewModel.categories
+                              .map((category) => DropdownMenuItem(
+                                    value: category.name,
+                                    child: Text(category.name),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                _selectedCategory = value;
+                              });
+                            }
+                          },
+                        ),
+                        SectionHeader(title: 'LOGIN CREDENTIALS'),
+                        AppTextField(
+                          controller: _usernameController,
+                          label: 'Username',
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a username';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16.0),
+                        AppTextField(
+                          controller: _passwordController,
+                          label: 'Password',
+                          isPassword: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a password';
+                            }
+                            return null;
+                          },
+                        ),
+                        SectionHeader(title: 'AUTOFILL OPTIONS'),
+                        AppTextField(
+                          controller: _urlController,
+                          label: 'Website (URI)',
+                        ),
+                        SectionHeader(title: 'NOTES'),
+                        AppTextField(
+                          controller: _notesController,
+                          label: 'Your additional notes (optional)',
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: 24.0),
+                        ElevatedButton(
+                          onPressed: _savePassword,
+                          child: Text(
+                              _isEditing ? 'Update Password' : 'Save Password'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
+        );
+      },
     );
   }
 
   Future<void> _savePassword() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final password = _buildPasswordModel();
+      final password = PasswordModel(
+        id: _isEditing
+            ? (_passwordViewModel.password?.id ?? Isar.autoIncrement)
+            : Isar.autoIncrement,
+        title: _titleController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+        url: _urlController.text,
+        notes: _notesController.text.isEmpty ? null : _notesController.text,
+        category: _selectedCategory,
+        createdAt: _isEditing
+            ? _passwordViewModel.password?.createdAt ?? DateTime.now()
+            : DateTime.now(),
+      );
+
       final result = await _passwordViewModel.savePassword(password);
-      if (result && mounted) {
+      if (result) {
         showSnackbarMsg(
           context,
           _isEditing ? 'Password updated' : 'Password saved',
         );
         Navigator.pop(context);
+      } else {
+        showSnackbarMsg(context, 'Failed to save password');
       }
     }
-  }
-
-  PasswordModel _buildPasswordModel() {
-    final password = PasswordModel(
-      id: _isEditing && _passwordViewModel.password != null
-          ? _passwordViewModel.password!.id
-          : Isar.autoIncrement,
-      title: _titleController.text,
-      username: _usernameController.text,
-      password: _passwordController.text,
-      url: _urlController.text,
-      category: _selectedCategory,
-      notes: _notesController.text.isEmpty ? null : _notesController.text,
-      createdAt: _isEditing && _passwordViewModel.password != null
-          ? _passwordViewModel.password!.createdAt
-          : DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-    return password;
   }
 }

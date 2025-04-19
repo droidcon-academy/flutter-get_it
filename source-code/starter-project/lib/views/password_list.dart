@@ -1,39 +1,44 @@
 import 'dart:async';
 
-import 'package:da_get_it/core/di/service_locator.dart';
+import 'package:da_get_it/core/di/app_dependencies.dart';
 import 'package:da_get_it/models/password_model.dart';
 import 'package:da_get_it/viewmodels/password_list_viewmodel.dart';
 import 'package:da_get_it/views/password_details_screen.dart';
 import 'package:da_get_it/widgets/messages.dart';
 import 'package:da_get_it/widgets/password_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:watch_it/watch_it.dart';
 
-class PasswordList extends WatchingWidget {
+class PasswordList extends StatelessWidget {
   const PasswordList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = watchIt<PasswordListViewModel>();
-    if (viewModel.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    final viewModel = AppDependencies.instance.passwordListViewModel;
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, _) {
+        if (viewModel.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    if (viewModel.passwords.isEmpty) {
-      final isCategoryEmpty = viewModel.selectedCategory.isEmpty;
-      return NoPasswordFound(
-        onClearTap: isCategoryEmpty ? null : () => viewModel.clearFilters(),
-      );
-    }
+        if (viewModel.passwords.isEmpty) {
+          final isCategoryEmpty = viewModel.selectedCategory.isEmpty;
+          return NoPasswordFound(
+            onClearTap: isCategoryEmpty ? null : () => viewModel.clearFilters(),
+          );
+        }
 
-    return ListView.builder(
-      itemCount: viewModel.passwords.length,
-      itemBuilder: (context, index) {
-        final password = viewModel.passwords[index];
-        return PasswordItem(
-          password: password,
-          onTap: () => _navigateToPasswordDetails(context, password),
-          onDelete: () => _deletePassword(context, password),
+        return ListView.builder(
+          itemCount: viewModel.passwords.length,
+          itemBuilder: (context, index) {
+            final password = viewModel.passwords[index];
+            return PasswordItem(
+              password: password,
+              onTap: () =>
+                  _navigateToPasswordDetails(context, password, viewModel),
+              onDelete: () => _deletePassword(context, password, viewModel),
+            );
+          },
         );
       },
     );
@@ -42,8 +47,8 @@ class PasswordList extends WatchingWidget {
   void _navigateToPasswordDetails(
     BuildContext context,
     PasswordModel password,
+    PasswordListViewModel viewModel,
   ) {
-    final viewModel = getIt<PasswordListViewModel>();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -55,6 +60,7 @@ class PasswordList extends WatchingWidget {
   Future<void> _deletePassword(
     BuildContext context,
     PasswordModel password,
+    PasswordListViewModel viewModel,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -75,7 +81,6 @@ class PasswordList extends WatchingWidget {
     );
 
     if (confirmed == true) {
-      final viewModel = getIt<PasswordListViewModel>();
       await viewModel.deletePassword(password.id);
       scheduleMicrotask(() {
         showSnackbarMsg(context, 'Password deleted');

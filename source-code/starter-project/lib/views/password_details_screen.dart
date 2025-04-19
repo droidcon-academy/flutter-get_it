@@ -1,12 +1,10 @@
+import 'package:da_get_it/core/di/app_dependencies.dart';
 import 'package:da_get_it/viewmodels/password_detail_viewmodel.dart';
 import 'package:da_get_it/views/add_password_screen.dart';
-import 'package:da_get_it/widgets/messages.dart';
 import 'package:da_get_it/widgets/password_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:da_get_it/core/di/service_locator.dart';
-import 'package:watch_it/watch_it.dart';
 
-class PasswordDetailsScreen extends WatchingWidget {
+class PasswordDetailsScreen extends StatelessWidget {
   final int passwordId;
 
   const PasswordDetailsScreen({
@@ -16,44 +14,50 @@ class PasswordDetailsScreen extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = watch(getIt<PasswordDetailViewModel>(param1: passwordId));
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Password Details'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddPasswordScreen(
-                    editPasswordId: passwordId,
-                  ),
-                ),
-              ).then((_) => viewModel.loadPassword(passwordId));
-            },
+    final viewModel =
+        AppDependencies.instance.createPasswordDetailViewModel(passwordId);
+
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, _) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Password Details'),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddPasswordScreen(
+                        editPasswordId: passwordId,
+                      ),
+                    ),
+                  ).then((_) => viewModel.loadPassword(passwordId));
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _confirmDelete(context, viewModel),
+              ),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _confirmDelete(context, viewModel),
-          ),
-        ],
-      ),
-      body: _PasswordForm(viewModel: viewModel),
+          body: _PasswordForm(viewModel: viewModel),
+        );
+      },
     );
   }
 
   Future<void> _confirmDelete(
-    BuildContext context,
-    PasswordDetailViewModel viewModel,
-  ) async {
+      BuildContext context, PasswordDetailViewModel viewModel) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Password'),
-        content: const Text('Are you sure you want to delete this password?'),
+        content: Text(
+            'Are you sure you want to delete "${viewModel.password?.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -68,11 +72,8 @@ class PasswordDetailsScreen extends WatchingWidget {
     );
 
     if (confirmed == true) {
-      final result = await viewModel.deletePassword();
-      if (result) {
-        showSnackbarMsg(context, 'Password deleted');
-        Navigator.pop(context);
-      }
+      await viewModel.deletePassword();
+      Navigator.pop(context);
     }
   }
 }
@@ -83,80 +84,85 @@ class _PasswordForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (viewModel.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return ListenableBuilder(
+      listenable: viewModel,
+      builder: (context, _) {
+        if (viewModel.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    final password = viewModel.password;
-    if (password == null) {
-      return const Center(child: Text('Password not found'));
-    }
+        final password = viewModel.password;
+        if (password == null) {
+          return const Center(child: Text('Password not found'));
+        }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeader(title: 'ITEM DETAILS'),
-          AppTextField(
-            controller: TextEditingController(text: password.title),
-            label: 'Item name',
-            canCopy: true,
-            isReadOnly: true,
-          ),
-          AppTextField(
-            controller: TextEditingController(text: password.category),
-            label: 'Category',
-            isReadOnly: true,
-          ),
-          SectionHeader(title: 'LOGIN CREDENTIALS'),
-          AppTextField(
-            controller: TextEditingController(text: password.username),
-            label: 'Username',
-            canCopy: true,
-            isReadOnly: true,
-          ),
-          AppTextField(
-            controller:
-                TextEditingController(text: viewModel.decryptedPassword),
-            label: 'Password',
-            canCopy: true,
-            isPassword: true,
-          ),
-          SectionHeader(title: 'AUTOFILL OPTIONS'),
-          AppTextField(
-            controller: TextEditingController(text: password.url),
-            label: 'Website (URI)',
-            canCopy: true,
-            isReadOnly: true,
-          ),
-          if (password.notes != null && password.notes!.isNotEmpty) ...[
-            SectionHeader(title: 'NOTES'),
-            AppTextField(
-              controller: TextEditingController(text: password.notes!),
-              label: 'Your additional notes (optional)',
-              canCopy: true,
-              isReadOnly: true,
-            ),
-          ],
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              'Created on: ${_formatDate(password.createdAt)}',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-          if (password.updatedAt != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(
-                'Last updated: ${_formatDate(password.updatedAt!)}',
-                style: Theme.of(context).textTheme.bodySmall,
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SectionHeader(title: 'ITEM DETAILS'),
+              AppTextField(
+                controller: TextEditingController(text: password.title),
+                label: 'Item name',
+                canCopy: true,
+                isReadOnly: true,
               ),
-            ),
-        ],
-      ),
+              AppTextField(
+                controller: TextEditingController(text: password.category),
+                label: 'Category',
+                isReadOnly: true,
+              ),
+              SectionHeader(title: 'LOGIN CREDENTIALS'),
+              AppTextField(
+                controller: TextEditingController(text: password.username),
+                label: 'Username',
+                canCopy: true,
+                isReadOnly: true,
+              ),
+              AppTextField(
+                controller:
+                    TextEditingController(text: viewModel.decryptedPassword),
+                label: 'Password',
+                canCopy: true,
+                isPassword: true,
+              ),
+              SectionHeader(title: 'AUTOFILL OPTIONS'),
+              AppTextField(
+                controller: TextEditingController(text: password.url),
+                label: 'Website (URI)',
+                canCopy: true,
+                isReadOnly: true,
+              ),
+              if (password.notes != null && password.notes!.isNotEmpty) ...[
+                SectionHeader(title: 'NOTES'),
+                AppTextField(
+                  controller: TextEditingController(text: password.notes!),
+                  label: 'Your additional notes (optional)',
+                  canCopy: true,
+                  isReadOnly: true,
+                ),
+              ],
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  'Created on: ${_formatDate(password.createdAt)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+              if (password.updatedAt != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    'Last updated: ${_formatDate(password.updatedAt!)}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
