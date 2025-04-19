@@ -23,7 +23,6 @@ class SettingsViewModel extends ChangeNotifier {
   void setEncryptionMethod(String method) {
     _encryptionMethod = method;
     _settingsService.setEncryptionMethod(method);
-    // getIt.reset();
     notifyListeners();
   }
 }
